@@ -1,0 +1,44 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Ubuntu, Helvetica Neue,
+    /* 中文 */ PingFang SC, Microsoft YaHei, Source Han Sans SC,
+    Noto Sans CJK SC, WenQuanYi Micro Hei, sans-serif;
+}
+
+html,
+body,
+div,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hgroup,
+dd,
+dl,
+ul,
+ol,
+section,
+article,
+header,
+aside,
+footer,
+address,
+pre,
+blockquote,
+hr,
+noscript,
+form,
+figure,
+fieldset,
+figcaption,
+output,
+table,
+tfoot,
+audio,
+video,
+canvas {
+  box-sizing: border-box;
+}
