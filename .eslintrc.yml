@@ -2,6 +2,9 @@ env:
   browser: true
   node: true
 
+parserOptions:
+  ecmaVersion: 2020
+
 extends:
   - eslint:recommended
   # 保证此规则在最后，需要安装 prettier, eslint-plugin-prettier, eslint-config-prettier
