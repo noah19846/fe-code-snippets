@@ -39,6 +39,8 @@ async function request(axiosOptions = {}, userOptions = DEFAULT_USER_OPTIONS) {
   if (userOptions.needToken) {
     axiosOptions = {
       ...axiosOptions,
+      // normalize method
+      method: axiosOptions.method ? axiosOptions.method.toUpperCase() : 'GET',
       headers: {
         ...axiosOptions.headers,
         token: getToken()
@@ -50,6 +52,7 @@ async function request(axiosOptions = {}, userOptions = DEFAULT_USER_OPTIONS) {
     const source = axios.CancelToken.source()
     const mapKey = `${axiosOptions.method} ${axiosOptions.url}`
     const mapValue = {
+      method: axiosOptions.method,
       body: axiosOptions.body,
       params: axiosOptions.params,
       cancel: source.cancel
