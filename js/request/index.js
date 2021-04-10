@@ -36,11 +36,14 @@ async function request(axiosOptions = {}, userOptions = DEFAULT_USER_OPTIONS) {
     }
   }
 
+  // normalize axiosOptions.method
+  axiosOptions.method = axiosOptions.method
+    ? axiosOptions.method.toUpperCase()
+    : 'GET'
+
   if (userOptions.needToken) {
     axiosOptions = {
       ...axiosOptions,
-      // normalize method
-      method: axiosOptions.method ? axiosOptions.method.toUpperCase() : 'GET',
       headers: {
         ...axiosOptions.headers,
         token: getToken()
