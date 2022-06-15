@@ -73,9 +73,8 @@ const requestCreator = (router?: Router) => {
     if (userCfg.needToken && userCfg.getToken) {
       const [key, value] = userCfg.getToken()
 
-      Object.defineProperty(cfg.headers, key, {
-        value
-      })
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      cfg.headers![key] = value
     }
 
     cfg.userConfig = userCfg
