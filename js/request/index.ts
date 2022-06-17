@@ -1,5 +1,5 @@
-import type { AxiosRequestConfig } from 'axios'
-import type { Router } 'vue-router'
+import type { AxiosRequestConfig, AxiosPromise } from 'axios'
+import type { Router } from 'vue-router'
 
 import axios from 'axios'
 import basicConfig from './axios-config'
@@ -44,6 +44,11 @@ export type UserConfig = {
 
 type CreateUnOptionalUserConfig<T> = {
   [P in keyof T as Exclude<P, 'path'>]-?: T[P]
+}
+
+export type RequestFn = {
+  (url: string, config?: AxiosRequestConfig): AxiosPromise
+  (config: AxiosRequestConfig): AxiosPromise
 }
 
 const doWhatever: DoWhatever = () => {
@@ -130,7 +135,18 @@ const requestCreator = (router?: Router) => {
     }
   )
 
-  return (config: AxiosRequestConfig) => {
+  const requestFn: RequestFn = (
+    url: string | AxiosRequestConfig,
+    config?: AxiosRequestConfig
+  ) => {
+    if (typeof url === 'string') {
+      config = {
+        url,
+        ...config
+      }
+    } else {
+      config = url
+    }
     // to make config.userConfig be CreateUnOptionalUserConfig<UserConfig>
     const userCfg = { ...USER_DEFAULT_CONFIG, ...config.userConfig }
 
@@ -156,6 +172,8 @@ const requestCreator = (router?: Router) => {
 
     return axiosInstance(config)
   }
+
+  return requestFn
 }
 
 export default requestCreator
