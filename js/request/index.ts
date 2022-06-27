@@ -121,7 +121,7 @@ const requestCreator = (router?: Router) => {
     (err) => {
       const userCfg = {
         ...USER_DEFAULT_CONFIG,
-        ...err?.config?.userCfg
+        ...err?.config?.userConfig
       }
       // remove the controller from map when reject
       if (err.isAxiosError && err.config && userCfg.needDeDuplicate) {
