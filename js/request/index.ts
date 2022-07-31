@@ -1,9 +1,11 @@
 import type { AxiosRequestConfig, AxiosPromise } from 'axios'
 import type { Router } from 'vue-router'
+import type { UserInfo } from '@/types'
 
 import axios from 'axios'
 import basicConfig from './axios-config'
 import RequestManager from '../request-manager'
+import lse from 'local-storage-expirable'
 
 // add userConfig to AxiosRequestConfig to avoid ts error
 declare module 'axios' {
@@ -28,8 +30,8 @@ type AfterRequestCb = DoWhatever
 type GetTokenKeyValuePair = (_?: unknown) => [string, string]
 
 export type UserConfig = {
-  path?: string // 有 path 时说明需要在切换路由时取消请求
   needToken?: boolean
+  needCancelWithRoute?: boolean
   needDeDuplicate?: boolean
   getToken?: GetTokenKeyValuePair
   isLoginExpired?: LoginExpiredValidator
@@ -43,7 +45,7 @@ export type UserConfig = {
 }
 
 type CreateUnOptionalUserConfig<T> = {
-  [P in keyof T as Exclude<P, 'path'>]-?: T[P]
+  [P in keyof T]-?: T[P]
 }
 
 export type RequestFn = {
@@ -55,11 +57,12 @@ const doWhatever: DoWhatever = () => {
   //
 }
 const USER_DEFAULT_CONFIG: CreateUnOptionalUserConfig<UserConfig> = {
-  needToken: false,
-  needDeDuplicate: false,
-  isLoginExpired: () => false,
-  getToken: () => ['token', ''],
-  isSuccess: (res) => res.code === 200 || true,
+  needToken: true,
+  needDeDuplicate: true,
+  needCancelWithRoute: true,
+  isLoginExpired: (data) => data.code === 20006 || data.code === 20007,
+  getToken: () => ['Access-Token', (lse('userInfo') as UserInfo)?.token || ''],
+  isSuccess: (res) => res.code === 10000,
   onLoginExpired: doWhatever,
   onBefore: doWhatever,
   onSuccess: doWhatever,
@@ -110,7 +113,10 @@ const requestCreator = (router?: Router) => {
       }
 
       if (userCfg.isLoginExpired(data)) {
+        window?.$message?.error('用户未登录')
         userCfg.onLoginExpired(data)
+      } else {
+        window?.$message?.error(data.msg)
       }
 
       userCfg.onFailed(data)
@@ -150,7 +156,7 @@ const requestCreator = (router?: Router) => {
     // to make config.userConfig be CreateUnOptionalUserConfig<UserConfig>
     const userCfg = { ...USER_DEFAULT_CONFIG, ...config.userConfig }
 
-    if ((userCfg.path && router) || userCfg.needDeDuplicate) {
+    if ((userCfg.needCancelWithRoute && router) || userCfg.needDeDuplicate) {
       const ctl = new AbortController()
 
       if (userCfg.needDeDuplicate) {
@@ -163,8 +169,8 @@ const requestCreator = (router?: Router) => {
         rM.addController2ReqMap(reqStr, ctl)
       }
 
-      if (userCfg.path && router) {
-        rM.addController2PathMap(userCfg.path, ctl)
+      if (userCfg.needCancelWithRoute && router) {
+        rM.addControllerToSet(ctl)
       }
 
       config.signal = ctl.signal
