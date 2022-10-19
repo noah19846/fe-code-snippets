@@ -1,0 +1,4 @@
+# make sure that each text file ends of `lf` when checked in
+* text=auto eol=lf
+
+*.json  linguist-language=JSON-with-Comments
